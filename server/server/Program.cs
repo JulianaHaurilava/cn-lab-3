@@ -1,11 +1,13 @@
 ﻿using System.Net.Sockets;
 using System.Net;
 using System.Text;
+using server;
 
-var tcpListener = new TcpListener(IPAddress.Any, 8888);
+TcpListener tcpListener = new(IPAddress.Any, 8888);
+Repository r = new();
+
 try
 {
-
     tcpListener.Start();
     while (true)
     {
@@ -24,32 +26,24 @@ catch (Exception ex)
 
 async Task ProcessClientAsync(TcpClient tcpClient)
 {
-    var stream = tcpClient.GetStream();
+    NetworkStream stream = tcpClient.GetStream();
+
     // буфер для входящих данных
-    var response = new List<byte>();
-    int bytesRead = 10;
+    byte[] response = new byte[11];
     while (true)
     {
-        // считываем данные до конечного символа
-        while ((bytesRead = stream.ReadByte()) != '\n')
-        {
-            // добавляем в буфер
-            response.Add((byte)bytesRead);
-        }
-        var word = Encoding.UTF8.GetString(response.ToArray());
+        stream.Read(response, 0, 10);
 
-        // если прислан маркер окончания взаимодействия,
-        // выходим из цикла и завершаем взаимодействие с клиентом
-        if (word == "END") break;
+        string stringResponse = Encoding.UTF8.GetString(response.ToArray());
 
-        Console.WriteLine($"Клиент {tcpClient.Client.RemoteEndPoint} запросил перевод слова {word}");
-        // находим слово в словаре и отправляем обратно клиенту
-        if (!words.TryGetValue(word, out var translation)) translation = "не найдено в словаре";
-        // добавляем символ окончания сообщения 
-        translation += '\n';
-        // отправляем перевод слова из словаря
-        await stream.WriteAsync(Encoding.UTF8.GetBytes(translation));
-        response.Clear();
+        if (stringResponse == "<stop>") break;
+
+        Console.WriteLine($"IP: {((IPEndPoint)tcpClient.Client.RemoteEndPoint).Address}" +
+            $"Номер порта: {((IPEndPoint)tcpClient.Client.RemoteEndPoint).Port}" +
+            $"Дескриптор сокета: а он где?");
+
+        await stream.WriteAsync(r.ReturnReply(Convert.ToDateTime(stringResponse)));
+        response = new byte[11];
     }
     tcpClient.Close();
 }

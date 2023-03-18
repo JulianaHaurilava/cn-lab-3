@@ -6,31 +6,35 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace server
 {
     internal class Repository
     {
-        protected readonly string fileName;
+        private readonly string fileName;
+        private double minPrice;
         List<Component> componentList;
 
+
         public Repository()
         {
+            fileName = "components.json";
             componentList = new List<Component>();
-        }
-
-        public List<Component> ReturnComponents(DateTime userDate)
-        {
-            List<Component> neededComponents = new();
-
-        }
-
-        public Repository()
-        {
-            fileName = "clients.json";
-            AllClients = new ObservableCollection<Client>();
-
             OutOfFile();
+            GetMinPrice();
+        }
+
+        private void GetMinPrice()
+        {
+            minPrice = 0;
+            foreach (Component component in componentList)
+            {
+                if (minPrice > component.Price)
+                {
+                    minPrice = component.Price;
+                }
+            }
         }
         private void OutOfFile()
         {
@@ -41,24 +45,34 @@ namespace server
                     string json = stream.ReadToEnd();
                     if (json.Length != 0)
                     {
-                        AllClients = JsonConvert.DeserializeObject<ObservableCollection<Client>>(json);
+                        componentList = JsonConvert.DeserializeObject<List<Component>>(json);
                     }
                 }
             }
         }
-        private void InFile()
-        {
-            JArray clientsArray = new JArray();
-            foreach (Client client in AllClients)
-            {
-                clientsArray.Add(client.GetJson());
-            }
 
-            using (StreamWriter stream = new StreamWriter(fileName))
+        public byte[] ReturnReply(DateTime userDate)
+        {
+            string reply = String.Empty;
+
+            foreach (Component component in componentList)
             {
-                string json = JsonConvert.SerializeObject(clientsArray, Formatting.Indented);
-                stream.Write(json);
+                if (component.DeliveryDate == userDate &&
+                    component.Price != minPrice)
+                {
+                    reply += component.ToString() + "\n";
+                }
             }
+            return Encoding.UTF8.GetBytes(reply);
         }
+
+        //private void InFile()
+        //{
+        //    using (StreamWriter stream = new StreamWriter(fileName))
+        //    {
+        //        string json = JsonConvert.SerializeObject(componentList);
+        //        stream.Write(json);
+        //    }
+        //}
     }
 }
