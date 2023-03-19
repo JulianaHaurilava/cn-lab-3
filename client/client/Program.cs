@@ -10,15 +10,13 @@ try
     while (true)
     {
         byte[] response = new byte[3000];
-        Console.Write("Введите дату поставки: ");
-        string message = Console.ReadLine();
-
-        await stream.WriteAsync(Encoding.UTF8.GetBytes(message));
         stream.Read(response, 0, 3000);
 
         string stringResponse = Encoding.UTF8.GetString(response.ToArray());
         Console.WriteLine(stringResponse);
-        response = new byte[11];
+
+        string message = Console.ReadLine();
+        await stream.WriteAsync(Encoding.UTF8.GetBytes(message));
     }
 }
 catch (Exception ex)

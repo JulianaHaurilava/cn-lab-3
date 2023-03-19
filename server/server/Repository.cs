@@ -18,7 +18,7 @@ namespace server
             OutOfFile();
             GetMinPrice();
         }
-        Component this[string name]
+        public Component this[string name]
         {
             get
             {
@@ -27,7 +27,7 @@ namespace server
                     if (component.Name == name)
                         return component;
                 }
-                throw new ArgumentOutOfRangeException();
+                return new Component();
             }
         }
 
@@ -56,7 +56,7 @@ namespace server
                 }
             }
         }
-        public byte[] ReturnReply(DateTime userDate)
+        public byte[] ReturnReply(DateOnly userDate)
         {
             string reply = String.Empty;
 
@@ -93,12 +93,22 @@ namespace server
             GetMinPrice();
         }
 
-        public void EditComponent(Component component) 
+        public void EditComponent(Component component, Component newComponent) 
         {
             componentList.Remove(component);
-
+            componentList.Add(newComponent);
             InFile();
             GetMinPrice();
+        }
+
+        public string GetAllComponents()
+        {
+            string allDetails = String.Empty;
+            foreach(Component component in componentList)
+            {
+                allDetails += component.ToString() + "\n";
+            }
+            return allDetails;
         }
     }
 }
