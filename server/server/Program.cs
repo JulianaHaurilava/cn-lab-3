@@ -6,6 +6,10 @@ using server;
 TcpListener tcpListener = new(IPAddress.Any, 8888);
 Repository r = new();
 
+//Component component = new("Деталь_5", "Завод_5", 5000, new DateTime(2002, 02, 02));
+//r.Add(component);
+int clientsNumber = 0;
+
 try
 {
     tcpListener.Start();
@@ -26,6 +30,7 @@ catch (Exception ex)
 
 async Task ProcessClientAsync(TcpClient tcpClient)
 {
+    clientsNumber++;
     NetworkStream stream = tcpClient.GetStream();
 
     // буфер для входящих данных
@@ -38,12 +43,14 @@ async Task ProcessClientAsync(TcpClient tcpClient)
 
         if (stringResponse == "<stop>") break;
 
-        Console.WriteLine($"IP: {((IPEndPoint)tcpClient.Client.RemoteEndPoint).Address}" +
-            $"Номер порта: {((IPEndPoint)tcpClient.Client.RemoteEndPoint).Port}" +
-            $"Дескриптор сокета: а он где?");
+        Console.WriteLine($"Число активных клиентов: {clientsNumber}" +
+            $"IP: {((IPEndPoint)tcpClient.Client.RemoteEndPoint).Address}\n" +
+            $"Номер порта: {((IPEndPoint)tcpClient.Client.RemoteEndPoint).Port}\n" +
+            $"Дескриптор сокета: а он где?\n\n");
 
         await stream.WriteAsync(r.ReturnReply(Convert.ToDateTime(stringResponse)));
         response = new byte[11];
     }
+    clientsNumber--;
     tcpClient.Close();
 }

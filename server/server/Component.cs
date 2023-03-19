@@ -5,6 +5,8 @@ namespace server
 {
     internal class Component
     {
+        private string v;
+
         public string Name { get; set; }
         public string FactoryName { get; set; }
         public double Price { get; set; }

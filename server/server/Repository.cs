@@ -1,12 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+﻿using Newtonsoft.Json;
 using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
 
 namespace server
 {
@@ -27,7 +20,7 @@ namespace server
 
         private void GetMinPrice()
         {
-            minPrice = 0;
+            minPrice = int.MaxValue;
             foreach (Component component in componentList)
             {
                 if (minPrice > component.Price)
@@ -65,14 +58,5 @@ namespace server
             }
             return Encoding.UTF8.GetBytes(reply);
         }
-
-        //private void InFile()
-        //{
-        //    using (StreamWriter stream = new StreamWriter(fileName))
-        //    {
-        //        string json = JsonConvert.SerializeObject(componentList);
-        //        stream.Write(json);
-        //    }
-        //}
     }
 }
