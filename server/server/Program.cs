@@ -2,12 +2,11 @@
 using System.Net;
 using System.Text;
 using server;
+using System.Runtime.CompilerServices;
+using System.Net.Http;
 
 TcpListener tcpListener = new(IPAddress.Any, 8888);
 Repository r = new();
-
-//Component component = new("Деталь_5", "Завод_5", 5000, new DateTime(2002, 02, 02));
-//r.Add(component);
 int clientsNumber = 0;
 
 try
@@ -15,12 +14,8 @@ try
     tcpListener.Start();
     while (true)
     {
-        // получаем подключение в виде TcpClient
         var tcpClient = await tcpListener.AcceptTcpClientAsync();
-
-        // создаем новую задачу для обслуживания нового клиента
-        Task.Run(async () => await ProcessClientAsync(tcpClient));
-
+        _ = Task.Run(async () => await ProcessClientAsync(tcpClient));
     }
 }
 catch (Exception ex)
@@ -30,11 +25,15 @@ catch (Exception ex)
 
 async Task ProcessClientAsync(TcpClient tcpClient)
 {
-    clientsNumber++;
     NetworkStream stream = tcpClient.GetStream();
+    clientsNumber++;
 
-    // буфер для входящих данных
-    byte[] response = new byte[11];
+    Console.WriteLine($"Число активных клиентов: {clientsNumber}" +
+        $"IP: {((IPEndPoint)tcpClient.Client.RemoteEndPoint).Address}\n" +
+        $"Номер порта: {((IPEndPoint)tcpClient.Client.RemoteEndPoint).Port}\n" +
+        $"Дескриптор сокета: а он где?\n\n");
+
+    byte[] response = new byte[10];
     while (true)
     {
         stream.Read(response, 0, 10);
@@ -49,8 +48,60 @@ async Task ProcessClientAsync(TcpClient tcpClient)
             $"Дескриптор сокета: а он где?\n\n");
 
         await stream.WriteAsync(r.ReturnReply(Convert.ToDateTime(stringResponse)));
-        response = new byte[11];
+        response = new byte[10];
     }
     clientsNumber--;
     tcpClient.Close();
+}
+
+async Task<Component> GetComponentFromConsole(NetworkStream stream)
+{
+    List<byte> response = new();
+    int bytesRead;
+
+    await stream.WriteAsync(Encoding.UTF8.GetBytes("Введите информацию о детали\n\nНазвание: "));
+    while ((bytesRead = stream.ReadByte()) != '\n')
+    {
+        response.Add((byte)bytesRead);
+    }
+    string name = Encoding.UTF8.GetString(response.ToArray());
+    response.Clear();
+
+    await stream.WriteAsync(Encoding.UTF8.GetBytes("Завод: "));
+    while ((bytesRead = stream.ReadByte()) != '\n')
+    {
+        response.Add((byte)bytesRead);
+    }
+    string factoryName = Encoding.UTF8.GetString(response.ToArray());
+    response.Clear();
+
+    await stream.WriteAsync(Encoding.UTF8.GetBytes("Цена: "));
+    while ((bytesRead = stream.ReadByte()) != '\n')
+    {
+        response.Add((byte)bytesRead);
+    }
+    double price = double.Parse(Encoding.UTF8.GetString(response.ToArray()));
+    response.Clear();
+
+    await stream.WriteAsync(Encoding.UTF8.GetBytes("Дата поставки: "));
+    while ((bytesRead = stream.ReadByte()) != '\n')
+    {
+        response.Add((byte)bytesRead);
+    }
+    DateOnly deliveryDate = DateOnly.Parse(Encoding.UTF8.GetString(response.ToArray()));
+    response.Clear();
+
+    return new Component(name, factoryName, price, deliveryDate);
+}
+
+async Task GetComponents(NetworkStream stream)
+{
+    byte[] response = new byte[10];
+
+    await stream.WriteAsync(Encoding.UTF8.GetBytes("Введите дату поставки: "));
+    stream.Read(response, 0, 10);
+
+    string stringResponse = Encoding.UTF8.GetString(response.ToArray());
+
+    await stream.WriteAsync(r.ReturnReply(Convert.ToDateTime(stringResponse)));
 }

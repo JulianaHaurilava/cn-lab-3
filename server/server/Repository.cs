@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Text;
 
 namespace server
@@ -16,6 +17,18 @@ namespace server
             componentList = new List<Component>();
             OutOfFile();
             GetMinPrice();
+        }
+        Component this[string name]
+        {
+            get
+            {
+                foreach (var component in componentList)
+                {
+                    if (component.Name == name)
+                        return component;
+                }
+                throw new ArgumentOutOfRangeException();
+            }
         }
 
         private void GetMinPrice()
@@ -43,7 +56,6 @@ namespace server
                 }
             }
         }
-
         public byte[] ReturnReply(DateTime userDate)
         {
             string reply = String.Empty;
@@ -57,6 +69,36 @@ namespace server
                 }
             }
             return Encoding.UTF8.GetBytes(reply);
+        }
+        private void InFile()
+        {
+            using (StreamWriter stream = new StreamWriter(fileName))
+            {
+                string json = JsonConvert.SerializeObject(componentList);
+                stream.Write(json);
+            }
+        }
+
+        public void AddComponent(Component component)
+        {
+            componentList.Add(component);
+            InFile();
+            GetMinPrice();
+        }
+
+        public void DeleteComponent(Component component)
+        {
+            componentList.Remove(component);
+            InFile();
+            GetMinPrice();
+        }
+
+        public void EditComponent(Component component) 
+        {
+            componentList.Remove(component);
+
+            InFile();
+            GetMinPrice();
         }
     }
 }

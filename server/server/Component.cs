@@ -5,23 +5,21 @@ namespace server
 {
     internal class Component
     {
-        private string v;
-
         public string Name { get; set; }
         public string FactoryName { get; set; }
         public double Price { get; set; }
-        public DateTime DeliveryDate { get; set; } 
+        public DateOnly DeliveryDate { get; set; } 
 
         public Component()
         {
             Name = String.Empty;
             FactoryName = String.Empty;
             Price = 0;
-            DeliveryDate = DateTime.MinValue;
+            DeliveryDate = DateOnly.MinValue;
         }
 
         [JsonConstructor]
-        public Component(string name, string factoryName, double price, DateTime deliveryDate)
+        public Component(string name, string factoryName, double price, DateOnly deliveryDate)
         {
             Name = name;
             FactoryName = factoryName;
@@ -36,15 +34,5 @@ namespace server
                 "Цена: " + Price + "\n" +
                 "Дата поставки: " + DeliveryDate + "\n";
         }
-
-        //public JObject GetJson()
-        //{
-        //    JObject jClient = new JObject();
-        //    jClient["FactoryName"] = FactoryName;
-        //    jClient["Price"] = Price;
-        //    jClient["DeliveryDate"] = DeliveryDate;
-        //    return jClient;
-        //}
-
     }
 }
