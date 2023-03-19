@@ -36,19 +36,15 @@ async Task ProcessClientAsync(TcpClient tcpClient)
     byte[] response = new byte[10];
     while (true)
     {
-        stream.Read(response, 0, 10);
+        string menuText = "  Меню\n" +
+            "1 - вывести все детали\n" +
+            "2 - добавить деталь\n" +
+            "3 - редактировать деталь\n" +
+            "4 - удалить деталь\n" +
+            "5 - получить список деталей по дате поставки\n" +
+            "0 - завершить работу\n";
 
-        string stringResponse = Encoding.UTF8.GetString(response.ToArray());
-
-        if (stringResponse == "<stop>") break;
-
-        Console.WriteLine($"Число активных клиентов: {clientsNumber}" +
-            $"IP: {((IPEndPoint)tcpClient.Client.RemoteEndPoint).Address}\n" +
-            $"Номер порта: {((IPEndPoint)tcpClient.Client.RemoteEndPoint).Port}\n" +
-            $"Дескриптор сокета: а он где?\n\n");
-
-        await stream.WriteAsync(r.ReturnReply(Convert.ToDateTime(stringResponse)));
-        response = new byte[10];
+        await stream.WriteAsync(Encoding.UTF8.GetBytes(menuText));
     }
     clientsNumber--;
     tcpClient.Close();
