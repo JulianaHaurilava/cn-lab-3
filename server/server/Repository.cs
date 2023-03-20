@@ -10,7 +10,6 @@ namespace server
         private double minPrice;
         List<Component> componentList;
 
-
         public Repository()
         {
             fileName = "components.json";
@@ -46,17 +45,15 @@ namespace server
         {
             if (File.Exists(fileName))
             {
-                using (StreamReader stream = new StreamReader(fileName, true))
+                using StreamReader stream = new(fileName, true);
+                string json = stream.ReadToEnd();
+                if (json.Length != 0)
                 {
-                    string json = stream.ReadToEnd();
-                    if (json.Length != 0)
-                    {
-                        componentList = JsonConvert.DeserializeObject<List<Component>>(json);
-                    }
+                    componentList = JsonConvert.DeserializeObject<List<Component>>(json);
                 }
             }
         }
-        public byte[] ReturnReply(DateOnly userDate)
+        public string GetComponents(DateOnly userDate)
         {
             string reply = String.Empty;
 
@@ -68,31 +65,26 @@ namespace server
                     reply += component.ToString() + "\n";
                 }
             }
-            return Encoding.UTF8.GetBytes(reply);
+            return reply;
         }
         private void InFile()
         {
-            using (StreamWriter stream = new StreamWriter(fileName))
-            {
-                string json = JsonConvert.SerializeObject(componentList);
-                stream.Write(json);
-            }
+            using StreamWriter stream = new(fileName);
+            string json = JsonConvert.SerializeObject(componentList);
+            stream.Write(json);
         }
-
         public void AddComponent(Component component)
         {
             componentList.Add(component);
             InFile();
             GetMinPrice();
         }
-
         public void DeleteComponent(Component component)
         {
             componentList.Remove(component);
             InFile();
             GetMinPrice();
         }
-
         public void EditComponent(Component component, Component newComponent) 
         {
             componentList.Remove(component);
@@ -100,7 +92,6 @@ namespace server
             InFile();
             GetMinPrice();
         }
-
         public string GetAllComponents()
         {
             string allDetails = String.Empty;
