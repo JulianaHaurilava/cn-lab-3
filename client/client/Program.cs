@@ -12,7 +12,7 @@ try
         byte[] response = new byte[3000];
         stream.Read(response, 0, 3000);
 
-        string stringResponse = Encoding.UTF8.GetString(response.ToArray());
+        string stringResponse = Encoding.UTF8.GetString(response).TrimEnd('\0');
         Console.WriteLine(stringResponse);
 
         string message = Console.ReadLine();
