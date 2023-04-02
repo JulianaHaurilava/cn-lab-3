@@ -18,16 +18,8 @@ namespace server
 
         public async Task ConnectAsync()
         {
-            string menuText = "  Меню\n" +
-                    "1 - информацию обо всех деталях\n" +
-                    "2 - добавить деталь\n" +
-                    "3 - редактировать информацию о детали\n" +
-                    "4 - удалить деталь\n" +
-                    "5 - получить список деталей по дате поставки\n" +
-                    "0 - завершить работу";
             while (true)
             {
-                await SendMessageAsync(menuText);
                 int choice = int.Parse(await ReceiveMessageAsync(1));
 
                 switch (choice)
@@ -50,15 +42,14 @@ namespace server
                     case 0:
                         return;
                 }
-                stream.Flush();
             }
         }
 
         private async Task GetAllComponentsAsync()
         {
             await SendMessageAsync(r.GetAllComponents()
-                + "Отправьте любое сообщение чтобы продолжить...");
-            await ReceiveMessageAsync(1);
+                + "Отправьте любой символ чтобы продолжить...");
+            await ReceiveMessageAsync(10);
         }
         private async Task AddNewComponentAsync()
         {
@@ -67,11 +58,10 @@ namespace server
         }
         private async Task EditComponentAsync()
         {
-            await SendMessageAsync("Введите название детали: ");
             string name = await ReceiveMessageAsync(24);
 
             Component newComponent = await GetComponentFromConsoleAsync();
-            r.EditComponent(r[name], newComponent);
+            r.EditComponent(name, newComponent);
         }
         private async Task RemoveComponentAsync()
         {
@@ -85,7 +75,9 @@ namespace server
             await SendMessageAsync("Введите дату поставки:");
             string stringResponse = await ReceiveMessageAsync(10);
 
-            await SendMessageAsync(r.GetComponents(DateOnly.Parse(stringResponse)));
+            await SendMessageAsync(r.GetComponents(DateOnly.Parse(stringResponse))
+                + "Отправьте любой символ чтобы продолжить...");
+            await ReceiveMessageAsync(10);
         }
 
         private async Task SendMessageAsync(string message)
@@ -109,19 +101,12 @@ namespace server
 
             return stringResponse;
         }
-
+        
         private async Task<Component> GetComponentFromConsoleAsync()
         {
-            await SendMessageAsync("Введите информацию о детали\n\nНазвание:");
             string name = await ReceiveMessageAsync(24);
-
-            await SendMessageAsync("Завод:");
             string factoryName = await ReceiveMessageAsync(24);
-
-            await SendMessageAsync("Цена:");
             double price = double.Parse(await ReceiveMessageAsync(24));
-
-            await SendMessageAsync("Дата поставки:");
             DateOnly deliveryDate = DateOnly.Parse(await ReceiveMessageAsync(24));
 
             return new Component(name, factoryName, price, deliveryDate);

@@ -1,6 +1,5 @@
 ﻿using System.Net.Sockets;
 using System.Net;
-using System.Text;
 using server;
 
 TcpListener tcpListener = new(IPAddress.Any, 8888);
@@ -15,7 +14,7 @@ try
     while (true)
     {
         var tcpClient = await tcpListener.AcceptTcpClientAsync();
-        _ = Task.Run(async () => await ProcessClientAsync(tcpClient));
+        _ = Task.Run(async () => await WorkWithClient(tcpClient));
     }
 }
 catch (Exception ex)
@@ -23,7 +22,7 @@ catch (Exception ex)
     Console.WriteLine(ex.ToString());
 }
 
-async Task ProcessClientAsync(TcpClient tcpClient)
+async Task WorkWithClient(TcpClient tcpClient)
 {
     NetworkStream stream = tcpClient.GetStream();
     ClientSession client = new(++clientsNumber, stream, r);

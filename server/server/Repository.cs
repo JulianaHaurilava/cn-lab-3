@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Text;
 
 namespace server
 {
@@ -85,10 +83,10 @@ namespace server
             InFile();
             GetMinPrice();
         }
-        public void EditComponent(Component component, Component newComponent) 
+        public void EditComponent(string name, Component newComponent) 
         {
-            componentList.Remove(component);
-            componentList.Add(newComponent);
+            int index = componentList.FindIndex(c => c.Name == name);
+            componentList[index] = newComponent;
             InFile();
             GetMinPrice();
         }
