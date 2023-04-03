@@ -71,24 +71,25 @@ namespace server
             string json = JsonConvert.SerializeObject(componentList);
             stream.Write(json);
         }
-        public void AddComponent(Component component)
+        public bool AddComponent(Component component)
         {
-            componentList.Add(component);
-            InFile();
-            GetMinPrice();
+            var ifExist = componentList.Find(x => x.Name == component.Name);
+            if (ifExist != new Component())
+            {
+                componentList.Add(component);
+                InFile();
+                GetMinPrice();
+                return true;
+            }
+            return false;
         }
-        public void DeleteComponent(Component component)
+        public bool DeleteComponent(Component component)
         {
-            componentList.Remove(component);
+            bool isDeleted = componentList.Remove(component);
             InFile();
             GetMinPrice();
-        }
-        public void EditComponent(string name, Component newComponent) 
-        {
-            int index = componentList.FindIndex(c => c.Name == name);
-            componentList[index] = newComponent;
-            InFile();
-            GetMinPrice();
+
+            return isDeleted;
         }
         public string GetAllComponents()
         {

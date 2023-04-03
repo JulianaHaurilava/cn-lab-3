@@ -31,12 +31,9 @@ namespace server
                         await AddNewComponentAsync();
                         break;
                     case 3:
-                        await EditComponentAsync();
-                        break;
-                    case 4:
                         await RemoveComponentAsync();
                         break;
-                    case 5:
+                    case 4:
                         await GetComponentsByDateAsync();
                         break;
                     case 0:
@@ -47,37 +44,31 @@ namespace server
 
         private async Task GetAllComponentsAsync()
         {
-            await SendMessageAsync(r.GetAllComponents()
-                + "Отправьте любой символ чтобы продолжить...");
-            await ReceiveMessageAsync(10);
+            await SendMessageAsync(r.GetAllComponents());
         }
         private async Task AddNewComponentAsync()
         {
-            Component newComponent = await GetComponentFromConsoleAsync();
-            r.AddComponent(newComponent);
-        }
-        private async Task EditComponentAsync()
-        {
-            string name = await ReceiveMessageAsync(24);
-
-            Component newComponent = await GetComponentFromConsoleAsync();
-            r.EditComponent(name, newComponent);
+            Component newComponent = await ReceiveComponent();
+            bool isAdded = r.AddComponent(newComponent);
+            if (isAdded)
+                await SendMessageAsync("Деталь успешно добавлена!\n");
+            else
+                await SendMessageAsync("Деталь с таким названием уже существует.\n");
         }
         private async Task RemoveComponentAsync()
         {
-            await SendMessageAsync("Введите название детали: ");
             string name = await ReceiveMessageAsync(24);
+            bool isDeleted = r.DeleteComponent(r[name]);
 
-            r.DeleteComponent(r[name]);
+            if (isDeleted)
+                await SendMessageAsync("Информация о детали удалена!\n");
+            else
+                await SendMessageAsync("Детали с введенным названием не существует.\n");
         }
         private async Task GetComponentsByDateAsync()
         {
-            await SendMessageAsync("Введите дату поставки:");
             string stringResponse = await ReceiveMessageAsync(10);
-
-            await SendMessageAsync(r.GetComponents(DateOnly.Parse(stringResponse))
-                + "Отправьте любой символ чтобы продолжить...");
-            await ReceiveMessageAsync(10);
+            await SendMessageAsync(r.GetComponents(DateOnly.Parse(stringResponse)));
         }
 
         private async Task SendMessageAsync(string message)
@@ -101,8 +92,7 @@ namespace server
 
             return stringResponse;
         }
-        
-        private async Task<Component> GetComponentFromConsoleAsync()
+        private async Task<Component> ReceiveComponent()
         {
             string name = await ReceiveMessageAsync(24);
             string factoryName = await ReceiveMessageAsync(24);
