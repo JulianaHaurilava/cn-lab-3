@@ -3,7 +3,7 @@ using System.Text;
 
 namespace client
 {
-    internal class Client
+    internal class ClientSession
     {
         private NetworkStream? stream;
         readonly string menuText = "  Меню\n"

@@ -14,7 +14,7 @@ try
     while (true)
     {
         var tcpClient = await tcpListener.AcceptTcpClientAsync();
-        _ = Task.Run(async () => await WorkWithClient(tcpClient));
+        new Thread(async () => await WorkWithClient(tcpClient)).Start();
     }
 }
 catch (Exception ex)
@@ -25,7 +25,7 @@ catch (Exception ex)
 async Task WorkWithClient(TcpClient tcpClient)
 {
     NetworkStream stream = tcpClient.GetStream();
-    ClientSession client = new(++clientsNumber, stream, r);
+    ServerSession client = new(++clientsNumber, stream, r);
 
     Console.WriteLine($"Установлено подключение с новым клиентом!\n" +
         $"Число активных клиентов: {clientsNumber}\n" +

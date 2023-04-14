@@ -3,13 +3,13 @@ using System.Text;
 
 namespace server
 {
-    internal class ClientSession
+    internal class ServerSession
     {
         private readonly int number;
         private readonly NetworkStream stream;
         private readonly Repository r;
 
-        public ClientSession(int number, NetworkStream stream, Repository r)
+        public ServerSession(int number, NetworkStream stream, Repository r)
         {
             this.number = number;
             this.stream = stream;

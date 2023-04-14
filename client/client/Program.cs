@@ -2,7 +2,7 @@
 
 try
 {
-    Client newClient = new Client();
+    ClientSession newClient = new ClientSession();
     await newClient.StartAsync();
 }
 catch (Exception ex)
